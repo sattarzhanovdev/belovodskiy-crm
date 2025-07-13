@@ -5,6 +5,8 @@ import { API } from '../../api';
 import { Components } from '..';
 import Barcode from 'react-barcode';
 
+const STOCK_API = 'https://aunbelovodskiy.pythonanywhere.com';
+
 const StockTable = () => {
   const [month, setMonth] = React.useState('');
   const [clients, setClients] = React.useState(null);
@@ -13,32 +15,25 @@ const StockTable = () => {
   const [selectedWeek, setSelectedWeek] = React.useState(5);
   const [categories, setCategories] = React.useState([]);
   const [selectedCategory, setSelectedCategory] = React.useState('');
-  const [selectedBranch, setSelectedBranch] = React.useState('sokuluk');
-
-  const branchAPI = selectedBranch === 'sokuluk'
-    ? 'https://auncrm.pythonanywhere.com'
-    : 'https://auncrm2.pythonanywhere.com';
 
   const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth();
 
   React.useEffect(() => {
     const monthName = currentDate.toLocaleString('ru', { month: 'long' });
     setMonth(monthName.charAt(0).toUpperCase() + monthName.slice(1));
 
-    fetch(`${branchAPI}/clients/stocks/`)
+    fetch(`${STOCK_API}/clients/stocks/`)
       .then(res => res.json())
       .then(data => setClients(data.reverse()))
       .catch(err => console.error('Ошибка загрузки товаров:', err));
-  }, [branchAPI]);
+  }, []);
 
   React.useEffect(() => {
-    fetch(`${branchAPI}/clients/categories/`)
+    fetch(`${STOCK_API}/clients/categories/`)
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Ошибка загрузки категорий:', err));
-  }, [branchAPI]);
+  }, []);
 
   const getWeekNumber = (dateStr) => {
     const day = new Date(dateStr).getDate();
@@ -64,18 +59,6 @@ const StockTable = () => {
 
   return (
     <div className={c.workers}>
-      <div style={{ marginBottom: 20 }}>
-        <label>Филиал:&nbsp;</label>
-        <select
-          value={selectedBranch}
-          onChange={e => setSelectedBranch(e.target.value)}
-          style={{ padding: 6 }}
-        >
-          <option value="sokuluk">Сокулук</option>
-          <option value="stock">Склад</option>
-        </select>
-      </div>
-
       <div className={c.table}>
         <select
           className={c.filteration}
@@ -161,8 +144,8 @@ const StockTable = () => {
         </table>
       </div>
 
-      {editActive && <Components.EditStock setActive={setEditActive} selectedBranch={selectedBranch} />}
-      {active && <Components.AddStock setActive={setActive} selectedBranch={selectedBranch} />}
+      {editActive && <Components.EditStock setActive={setEditActive} selectedBranch="belovodskiy" />}
+      {active && <Components.AddStock setActive={setActive} selectedBranch="belovodskiy" />}
     </div>
   );
 };
