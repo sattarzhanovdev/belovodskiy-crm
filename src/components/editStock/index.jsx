@@ -20,7 +20,7 @@ const EditStock = ({ setActive, selectedBranch }) => {
 
   const branchAPI = selectedBranch === 'sokuluk'
     ? 'https://auncrm.pythonanywhere.com'
-    : 'https://auncrm2.pythonanywhere.com'
+    : 'https://aunbelovodskiy.pythonanywhere.com'
 
   const handleSave = async () => {
     try {
