@@ -29,11 +29,7 @@ const Navbar = () => {
           }
         </ul>
       </div>
-<<<<<<< HEAD
       {/* <div className={c.right}>
-=======
-      <div className={c.right}>
->>>>>>> dbee46660e9e25c6532d3e760235a85aca5494e8
         <div className={c.search}>
           <img src={Icons.search} alt="search" />
           <input
@@ -43,13 +39,8 @@ const Navbar = () => {
         </div>
         <button>
           <img src={Icons.profile} alt="profile" />
-<<<<<<< HEAD
         </button> */}
       {/* </div> */}
-=======
-        </button>
-      </div>
->>>>>>> dbee46660e9e25c6532d3e760235a85aca5494e8
     </div>
   )
 }
