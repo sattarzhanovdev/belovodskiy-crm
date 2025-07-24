@@ -36,13 +36,14 @@ const Kassa = () => {
 
     API.getSales().then(r => setSales(r.data))
 
-    // При монтировании проверяем черновик
     const draft = localStorage.getItem('kassa-draft')
     if (draft) {
       const parsed = JSON.parse(draft)
       if (parsed.cart) setCart(parsed.cart)
       if (parsed.payment) setPay(parsed.payment)
     }
+
+    scanRef.current?.focus()
   }, [])
 
   const handleScan = e => {
@@ -110,6 +111,7 @@ const Kassa = () => {
         ? prev.map(p => p.id === item.id ? { ...p, qty: p.qty + 1 } : p)
         : [...prev, { ...item, qty: 1 }]
     })
+    setTimeout(() => scanRef.current?.focus(), 100)
   }
 
   const changeQty = (i, d) =>
@@ -147,6 +149,7 @@ const Kassa = () => {
       const res = await API.createSale(payload)
       localStorage.setItem('receipt', JSON.stringify(res.data))
       setCart([])
+      setTimeout(() => scanRef.current?.focus(), 100)
       nav('/receipt')
     } catch (e) {
       console.error(e)
@@ -181,8 +184,9 @@ const Kassa = () => {
 
   const saveDraft = () => {
     localStorage.setItem('kassa-draft', JSON.stringify({ cart, payment }))
-    setCart([]) // очистить корзину после сохранения
+    setCart([])
     alert('Касса отложена и очищена')
+    setTimeout(() => scanRef.current?.focus(), 100)
   }
 
   const restoreDraft = () => {
@@ -190,6 +194,7 @@ const Kassa = () => {
     if (draft.cart) setCart(draft.cart)
     if (draft.payment) setPay(draft.payment)
     alert('Касса восстановлена')
+    setTimeout(() => scanRef.current?.focus(), 100)
   }
 
   return (
@@ -199,6 +204,7 @@ const Kassa = () => {
       <input ref={scanRef} onKeyDown={handleScan}
         placeholder="Сканируйте штрих-код…"
         style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 20 }} />
+
 
       <div style={{ position: 'relative' }}>
         <input ref={nameRef}
@@ -258,6 +264,7 @@ const Kassa = () => {
                   value={it.price}
                   onChange={e => updatePrice(idx, e.target.value)}
                   style={{ width: 70, textAlign: 'center' }}
+                  aria-selected
                 />
               </td>
               <td style={td}>
