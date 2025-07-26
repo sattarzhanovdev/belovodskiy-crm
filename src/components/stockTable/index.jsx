@@ -4,6 +4,8 @@ import { Icons } from '../../assets/icons';
 import { API } from '../../api';
 import { Components } from '..';
 import Barcode from 'react-barcode';
+import jsPDF from 'jspdf';
+import Roboto_normal from './Roboto.ttf'
 
 const STOCK_API = 'https://aunbelovodskiy.pythonanywhere.com';
 
@@ -57,8 +59,33 @@ const StockTable = () => {
     return filtered;
   };
 
+const handleExportPDF = () => {
+  const filtered = filterGoods();
+  if (!filtered || filtered.length === 0) return;
+
+  let content = `Накладная за ${month}\n\n`;
+
+  filtered.forEach((item, index) => {
+    const sum = item.price;
+    content += `${index + 1}. ${item.name} — ${sum} сом\n`;
+  });
+
+  const total = filtered.reduce((sum, item) => sum + item.price * item.fixed_quantity, 0);
+  content += `\nИтого: ${total} сом`;
+
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `Накладная_${month}.txt`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+};
+
   return (
     <div className={c.workers}>
+      <button onClick={handleExportPDF} style={{ marginTop: 20 }}>
+        Сохранить в PDF
+      </button>
       <div className={c.table}>
         <select
           className={c.filteration}
@@ -142,6 +169,8 @@ const StockTable = () => {
             )}
           </tbody>
         </table>
+
+        
       </div>
 
       {editActive && <Components.EditStock setActive={setEditActive} selectedBranch="belovodskiy" />}
