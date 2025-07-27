@@ -22,33 +22,50 @@ const EditStock = ({ setActive, selectedBranch }) => {
     ? 'https://auncrm.pythonanywhere.com'
     : 'https://aunbelovodskiy.pythonanywhere.com'
 
-  const handleSave = async () => {
-    try {
-      const payload = {
-        code,
-        name,
-        quantity: +quantity || 0,
-        price: +price || 0,
-        price_seller: +priceSeller || 0,
-        category_id: category || null,
-        unit,
-        fixed_quantity: +fixedQuantity || 0,
-      }
-
-      await fetch(`${branchAPI}/clients/stocks/${initial.id}/`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-
-      alert('Товар сохранён')
-      setActive(false)
-      window.location.reload()
-    } catch (err) {
-      console.error('Ошибка при сохранении:', err)
-      alert('Ошибка при сохранении')
-    }
+  // Генератор EAN-13 штрихкода
+  const getRandomBarcode = () => {
+    const base = Math.floor(100000000000 + Math.random() * 900000000000).toString()
+    const sum = base.split('').reduce((acc, digit, idx) => {
+      const d = parseInt(digit, 10)
+      return acc + d * (idx % 2 === 0 ? 1 : 3)
+    }, 0)
+    const checksum = (10 - (sum % 10)) % 10
+    return base + checksum
   }
+
+  const handleSave = async () => {
+  try {
+    let currentCode = code
+    if (!currentCode.trim()) {
+      currentCode = getRandomBarcode()
+      setCode(currentCode)
+    }
+
+    const payload = {
+      code: currentCode,
+      name,
+      quantity: +quantity || 0,
+      price: +price || 0,
+      price_seller: +priceSeller || 0,
+      category_id: category || null,
+      unit,
+      fixed_quantity: +fixedQuantity || 0,
+    }
+
+    await fetch(`${branchAPI}/clients/stocks/${initial.id}/`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    alert('Товар сохранён')
+    setActive(false)
+    window.location.reload()
+  } catch (err) {
+    console.error('Ошибка при сохранении:', err)
+    alert('Ошибка при сохранении')
+  }
+}
 
   const handleDelete = async () => {
     if (!window.confirm('Вы уверены, что хотите удалить этот товар?')) return
@@ -73,6 +90,13 @@ const EditStock = ({ setActive, selectedBranch }) => {
       .then(data => setCats(data))
       .catch(e => console.error('Не удалось загрузить категории', e))
   }, [branchAPI])
+
+  useEffect(() => {
+    if (!initial.code) {
+      const generated = getRandomBarcode()
+      setCode(generated)
+    }
+  }, [initial])
 
   return (
     <div className={c.addExpense}>
