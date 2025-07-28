@@ -45,8 +45,6 @@ const Kassa = () => {
       if (!isNameFocused) scanRef.current?.focus()
     }
 
-    focusScanner()
-
     document.addEventListener('click', focusScanner)
     window.addEventListener('focus', focusScanner)
 
