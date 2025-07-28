@@ -212,9 +212,41 @@ const Kassa = () => {
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h2>🧾 Касса</h2>
 
-      <input  onKeyDown={handleScan}
+      <input
+        ref={scanRef}
+        autoFocus
+        autoComplete="off"
         placeholder="Сканируйте штрих-код…"
-        style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 20 }} />
+        style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 20 }}
+        onKeyDown={e => {
+          if (e.key !== 'Enter') return
+          const raw = e.target.value.trim()
+          console.log('📥 Сканировано:', raw)
+
+          if (!raw || raw.length < 8) {
+            alert('Некорректный штрих-код')
+            e.target.value = ''
+            return
+          }
+
+          const matches = goods.filter(g =>
+            g.code_array.includes(raw)
+          )
+
+          if (matches.length === 0) {
+            alert('Товар не найден')
+          } else if (matches.length === 1) {
+            addToCart(matches[0])
+          } else {
+            setMultipleMatches(matches)
+          }
+
+          e.target.value = ''
+        }}
+        onFocus={e => {
+          e.target.value = ''
+        }}
+      />
 
       <div style={{ position: 'relative' }}>
         <input 
