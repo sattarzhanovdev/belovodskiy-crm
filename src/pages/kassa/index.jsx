@@ -214,7 +214,6 @@ const Kassa = () => {
 
       <input
         ref={scanRef}
-        autoFocus
         autoComplete="off"
         placeholder="Сканируйте штрих-код…"
         style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 20 }}
