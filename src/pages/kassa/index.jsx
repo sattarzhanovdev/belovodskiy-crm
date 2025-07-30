@@ -214,29 +214,7 @@ const Kassa = () => {
       <h2>🧾 Касса</h2>
 
       <input
-        ref={scanRef}
-        placeholder="Сканируйте штрих-код…"
-        style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 20 }}
-        onInput={e => {
-          if (e.key !== 'Enter') return
-          const raw = e.target.value.trim()
-          if (!raw || raw.length < 8) {
-            alert('Некорректный штрих-код')
-            e.target.value = ''
-            return
-          }
-          const matches = goods.filter(g => g.code_array.includes(raw))
-          if (matches.length === 0) {
-            alert('Товар не найден')
-          } else if (matches.length === 1) {
-            addToCart(matches[0])
-          } else {
-            setMultipleMatches(matches)
-          }
-          e.target.value = ''
-        }}
-        onFocus={e => { e.target.value = '' }}
-      />
+ п
 
       <div style={{ marginBottom: 20 }}>
         <label>Тип оплаты:&nbsp;</label>
