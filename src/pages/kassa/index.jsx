@@ -41,7 +41,7 @@ const Kassa = () => {
 
   useEffect(() => {
     const handler = (e) => {
-      const isF10 = e.key === 'F10'
+      const isF10 = e.key === 'F1'
       if (isF10) {
         e.preventDefault()
         setIsPopupOpen(true)
