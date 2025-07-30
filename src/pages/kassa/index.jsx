@@ -41,7 +41,7 @@ const Kassa = () => {
 
   useEffect(() => {
     const handler = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+      if ((e.ctrlKey || e.shiftKey || e.metaKey) && e.key === 'f') {
         e.preventDefault()
         setIsPopupOpen(true)
         setTimeout(() => {
