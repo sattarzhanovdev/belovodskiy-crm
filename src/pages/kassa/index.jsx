@@ -191,20 +191,6 @@ const Kassa = () => {
     alert('Касса восстановлена')
   }
 
-  React.useEffect(() => {
-    const focusInput = () => {
-      if (scanRef.current && document.activeElement !== scanRef.current) {
-        scanRef.current.focus()
-      }
-    }
-
-    focusInput() // Первичный фокус
-    const interval = setInterval(focusInput, 100) // Постоянный фокус
-
-    return () => clearInterval(interval) // Очистка при размонтировании
-  }, [])
-
-
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h2>🧾 Касса</h2>
