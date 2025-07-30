@@ -40,20 +40,6 @@ const Kassa = () => {
 
   }, [])
 
-  useEffect(() => {
-    const focusScanner = () => {
-      if (!isNameFocused) scanRef.current?.focus()
-    }
-
-    document.addEventListener('click', focusScanner)
-    window.addEventListener('focus', focusScanner)
-
-    return () => {
-      document.removeEventListener('click', focusScanner)
-      window.removeEventListener('focus', focusScanner)
-    }
-  }, [isNameFocused])
-
   const handleScan = e => {
     if (e.key !== 'Enter') return
     const code = e.target.value.trim()
