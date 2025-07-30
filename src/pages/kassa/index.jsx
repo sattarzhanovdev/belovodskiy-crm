@@ -217,7 +217,7 @@ const Kassa = () => {
         ref={scanRef}
         placeholder="Сканируйте штрих-код…"
         style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 20 }}
-        onKeyDown={e => {
+        onInput={e => {
           if (e.key !== 'Enter') return
           const raw = e.target.value.trim()
           if (!raw || raw.length < 8) {
