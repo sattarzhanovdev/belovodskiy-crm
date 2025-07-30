@@ -41,7 +41,7 @@ const Kassa = () => {
 
   useEffect(() => {
     const handler = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
         e.preventDefault()
         setIsPopupOpen(true)
         setTimeout(() => {
@@ -323,7 +323,7 @@ const Kassa = () => {
               onChange={handleNameChange}
               onKeyDown={keyNav}
               placeholder="Введите название товара…"
-              style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 10 }}
+              style={{ width: '90%', padding: 12, fontSize: 16, marginBottom: 10 }}
             />
 
             {suggest.length > 0 ? (
