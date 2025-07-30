@@ -18,7 +18,7 @@ const Kassa = () => {
   const [highlight, setHighlight] = useState(-1)
   const [multipleMatches, setMultipleMatches] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [isNameFocused, setIsNameFocused] = useState(false)
+  const [isPopupOpen, setIsPopupOpen] = useState(false)
 
   const scanRef = useRef()
   const nameRef = useRef()
@@ -37,25 +37,25 @@ const Kassa = () => {
       .catch(e => console.error('Ошибка загрузки товаров', e))
 
     API.getSales().then(r => setSales(r.data))
-
   }, [])
 
-  const handleScan = e => {
-    if (e.key !== 'Enter') return
-    const code = e.target.value.trim()
-    if (!code) return
-
-    const matches = goods.filter(g => g.code_array.includes(code))
-    if (matches.length === 0) {
-      alert('Товар не найден')
-    } else if (matches.length === 1) {
-      addToCart(matches[0])
-    } else {
-      setMultipleMatches(matches)
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        setIsPopupOpen(true)
+        setTimeout(() => {
+          nameRef.current?.focus()
+        }, 0)
+      }
+      if (e.key === 'Escape') {
+        setIsPopupOpen(false)
+        clearSuggest()
+      }
     }
-
-    e.target.value = ''
-  }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [suggest])
 
   const handleNameChange = e => {
     const val = e.target.value
@@ -84,7 +84,7 @@ const Kassa = () => {
       if (item) {
         addToCart(item)
         clearSuggest()
-        scanRef.current?.focus()
+        setIsPopupOpen(false)
       }
     }
   }
@@ -92,7 +92,7 @@ const Kassa = () => {
   const chooseSuggest = i => {
     addToCart(suggest[i])
     clearSuggest()
-    scanRef.current?.focus()
+    setIsPopupOpen(false)
   }
 
   const clearSuggest = () => {
@@ -177,6 +177,23 @@ const Kassa = () => {
     })
   }
 
+  
+  useEffect(() => {
+    if (!isPopupOpen) {
+        const focusInput = () => {
+        if (scanRef.current && document.activeElement !== scanRef.current) {
+          scanRef.current.focus()
+        }
+      }
+
+      focusInput() // Первичный фокус
+      const interval = setInterval(focusInput, 100) // Постоянный фокус
+
+      return () => clearInterval(interval) // Очистка при размонтировании
+    }
+  }, [isPopupOpen])
+
+
   const saveDraft = () => {
     localStorage.setItem('kassa-draft', JSON.stringify({ cart, payment }))
     setCart([])
@@ -200,63 +217,25 @@ const Kassa = () => {
         placeholder="Сканируйте штрих-код…"
         style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 20 }}
         onKeyDown={e => {
-        if (e.key !== 'Enter') return
-        const raw = e.target.value.trim()
-        console.log('📥 Сканировано:', raw)
-
-        if (!raw || raw.length < 8) {
-          alert('Некорректный штрих-код')
-          e.target.value = ''
-          return
-        }
-
-        const matches = goods.filter(g =>
-          g.code_array.includes(raw)
-        )
-
-        if (matches.length === 0) {
-          alert('Товар не найден')
-        } else if (matches.length === 1) {
-          addToCart(matches[0])
-        } else {
-          setMultipleMatches(matches)
-        }
-
-        e.target.value = ''
-        }}
-     
-        onFocus={e => {
+          if (e.key !== 'Enter') return
+          const raw = e.target.value.trim()
+          if (!raw || raw.length < 8) {
+            alert('Некорректный штрих-код')
+            e.target.value = ''
+            return
+          }
+          const matches = goods.filter(g => g.code_array.includes(raw))
+          if (matches.length === 0) {
+            alert('Товар не найден')
+          } else if (matches.length === 1) {
+            addToCart(matches[0])
+          } else {
+            setMultipleMatches(matches)
+          }
           e.target.value = ''
         }}
+        onFocus={e => { e.target.value = '' }}
       />
-
-      <div style={{ position: 'relative' }}>
-        <input 
-          value={query}
-          onChange={handleNameChange}
-          onKeyDown={keyNav}
-          placeholder="Название товара…"
-          style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 20 }} />
-
-        {suggest.length > 0 && (
-          <ul style={{
-            position: 'absolute', zIndex: 1000, top: 48, left: 0, right: 0,
-            maxHeight: 180, overflowY: 'auto',
-            background: '#fff', border: '1px solid #ccc', listStyle: 'none', margin: 0, padding: 0
-          }}>
-            {suggest.map((s, i) => (
-              <li key={s.id}
-                onMouseDown={() => chooseSuggest(i)}
-                style={{
-                  padding: '6px 12px', cursor: 'pointer',
-                  background: i === highlight ? '#f0f8ff' : 'transparent'
-                }}>
-                {s.name}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
 
       <div style={{ marginBottom: 20 }}>
         <label>Тип оплаты:&nbsp;</label>
@@ -326,6 +305,63 @@ const Kassa = () => {
         <button onClick={restoreDraft} style={{ ...sellBtn, background: '#8e44ad', marginLeft: 10 }}>♻️ Восстановить</button>
       </div>
 
+      {isPopupOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', zIndex: 10000
+        }}>
+          <div style={{
+            background: '#fff', padding: 20, borderRadius: 8, minWidth: 400,
+            boxShadow: '0 2px 10px rgba(0,0,0,0.25)', position: 'relative'
+          }}>
+            <h3>🔍 Поиск товара (Ctrl+K)</h3>
+            <input
+              ref={nameRef}
+              autoFocus
+              value={query}
+              onChange={handleNameChange}
+              onKeyDown={keyNav}
+              placeholder="Введите название товара…"
+              style={{ width: '100%', padding: 12, fontSize: 16, marginBottom: 10 }}
+            />
+
+            {suggest.length > 0 ? (
+              <ul style={{
+                maxHeight: 200, overflowY: 'auto',
+                listStyle: 'none', padding: 0, margin: 0,
+                border: '1px solid #ccc', borderRadius: 4
+              }}>
+                {suggest.map((s, i) => (
+                  <li key={s.id}
+                    onMouseDown={() => chooseSuggest(i)}
+                    style={{
+                      padding: '8px 12px',
+                      background: i === highlight ? '#f0f8ff' : '#fff',
+                      cursor: 'pointer', borderBottom: '1px solid #eee',
+                      display: 'flex', justifyContent: 'space-between'
+                    }}>
+                    <div>{s.name}</div>
+                    <div style={{ fontSize: 12, color: '#888' }}>{s.price} сом • Остаток: {s.quantity}</div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div style={{ color: '#888', fontSize: 14, padding: '10px 5px' }}>
+                Введите минимум 2 символа для поиска
+              </div>
+            )}
+
+            <div style={{ textAlign: 'right', marginTop: 10 }}>
+              <button onClick={() => setIsPopupOpen(false)}
+                style={{ background: '#ccc', border: 'none', padding: '6px 12px', cursor: 'pointer' }}>
+                ❌ Закрыть (Esc)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {multipleMatches && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -368,6 +404,7 @@ const Kassa = () => {
           </div>
         </div>
       )}
+
       {loading && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
