@@ -179,20 +179,20 @@ const Kassa = () => {
   }
 
   
-  useEffect(() => {
-    if (!isPopupOpen) {
-        const focusInput = () => {
-        if (scanRef.current && document.activeElement !== scanRef.current) {
-          scanRef.current.focus()
-        }
-      }
+  // useEffect(() => {
+  //   if (!isPopupOpen) {
+  //       const focusInput = () => {
+  //       if (scanRef.current && document.activeElement !== scanRef.current) {
+  //         scanRef.current.focus()
+  //       }
+  //     }
 
-      focusInput() // Первичный фокус
-      const interval = setInterval(focusInput, 100) // Постоянный фокус
+  //     focusInput() // Первичный фокус
+  //     const interval = setInterval(focusInput, 100) // Постоянный фокус
 
-      return () => clearInterval(interval) // Очистка при размонтировании
-    }
-  }, [isPopupOpen])
+  //     return () => clearInterval(interval) // Очистка при размонтировании
+  //   }
+  // }, [isPopupOpen])
 
 
   const saveDraft = () => {
